@@ -1,6 +1,6 @@
 import pandas as pd
-from src import data_processing
-from src import visualization
+from data_processing import preprocess_data
+ 
 
 def main():
     #carica il dataset CSV
@@ -13,9 +13,9 @@ def main():
     if local_df is None:
         print("Errore nel caricamento del file CSV.")
     else:
-        print(local_df['Player'])
+        print("ok")
     # Fase 1: Preprocessamento dei dati
-    #local_df = preprocess_data(local_df)
+    local_df = preprocess_data(local_df, "data/dataset_pulito.csv")
     
     # Fase 2: #Aggiungi al dataset attributi prelevati dal web semantico
     #run_semantic_integration()
