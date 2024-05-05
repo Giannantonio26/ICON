@@ -1,6 +1,9 @@
 import pandas as pd
 from data_processing import *
 from PlayersStatsProlog import *
+from pyswip import Prolog
+from utils import *
+from utils import averageDribblingSuccess
 
 def main():
     #carica il dataset CSV
@@ -15,9 +18,20 @@ def main():
     else:
         print("ok")
     # preprocess dei dati
-    preprocess_data(local_df, "data/new_dataset.csv")
-    csv_to_prolog('data/new_dataset.csv', 'kb.pl')
+    local_df = preprocess_data(local_df, "data/new_dataset.csv")  
+    avgDribblingSuccess = averageDribblingSuccess(local_df)
+    print(avgDribblingSuccess)
+    selected_columns = ["Rk", "Player", "Nation", "Pos", "Squad", "ToSuc", "Rec", "RecProg", "PasTotCmp", "PasAss"]
 
+    #csv_to_prolog('data/new_dataset.csv','src/kb.pl', selected_columns)
+
+    # Query the knowledge base
+    prolog = Prolog()
+    # Load the Prolog file containing the knowledge base
+    prolog.consult("src/kb.pl")
+
+
+    
     # Fase 2: #Aggiungi al dataset attributi prelevati dal web semantico
     #run_semantic_integration()
     
