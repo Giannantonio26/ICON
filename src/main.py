@@ -25,13 +25,31 @@ def main():
 
     #csv_to_prolog('data/new_dataset.csv','src/kb.pl', selected_columns)
 
-    # Query the knowledge base
+    # Create a Prolog instance
     prolog = Prolog()
-    # Load the Prolog file containing the knowledge base
-    prolog.consult("src/kb.pl")
+
+    # Define the Prolog facts
+    prolog.assertz("player_stats(2689, 'Filip ?uri?i?', 'SRB', 'MFFW', 'Sampdoria', 1.09, 28.9, 3.2, 23.5, 1.84)")
+    prolog.assertz("player_stats(1234, 'Another Player', 'Country', 'Position', 'Team', 0.6, 25.0, 2.5, 20.0, 1.5)")
+
+    # Define the Prolog rule for strong dribblers
+    prolog.assertz("(strong_dribbler(Player) :- player_stats(_, Player, _, _, _, ToSuc, _, _, _, _), ToSuc > 0.7293638392857144)")
+
+    # Query for strong dribblers
+    results = prolog.query("strong_dribbler(Player)")
+
+    # Print the results
+    print("Strong dribblers:")
+    for result in results:
+        print(result["Player"])
 
 
-    
+
+
+    # Print the results
+    for result in results:
+        print("Strong dribbler:", result["Player"])
+
     # Fase 2: #Aggiungi al dataset attributi prelevati dal web semantico
     #run_semantic_integration()
     
