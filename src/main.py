@@ -1,6 +1,6 @@
 import pandas as pd
-from data_processing import preprocess_data
- 
+from data_processing import *
+from PlayersStatsProlog import *
 
 def main():
     #carica il dataset CSV
@@ -14,11 +14,13 @@ def main():
         print("Errore nel caricamento del file CSV.")
     else:
         print("ok")
-    # Fase 1: Preprocessamento dei dati
-    local_df = preprocess_data(local_df, "data/dataset_pulito.csv")
-    
+    # preprocess dei dati
+    preprocess_data(local_df, "data/new_dataset.csv")
+    csv_to_prolog('data/new_dataset.csv', 'kb.pl')
+
     # Fase 2: #Aggiungi al dataset attributi prelevati dal web semantico
     #run_semantic_integration()
+    
 
     # Fase 3: Ragionamento relazionale
     #perform_relational_reasoning()
