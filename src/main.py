@@ -3,7 +3,6 @@ from data_processing import *
 from PlayersStatsProlog import *
 from pyswip import Prolog
 from utils import *
-from utils import averageDribblingSuccess
 
 def main():
     #carica il dataset CSV
@@ -18,41 +17,38 @@ def main():
     else:
         print("ok")
     # preprocess dei dati
-    local_df = preprocess_data(local_df, "data/new_dataset.csv")  
-    avgDribblingSuccess = averageDribblingSuccess(local_df)
-    print(avgDribblingSuccess)
-    selected_columns = ["Rk", "Player", "Nation", "Pos", "Squad", "ToSuc", "Rec", "RecProg", "PasTotCmp", "PasAss"]
+    #local_df = preprocess_data(local_df, "data/new_dataset.csv")  
 
-    #csv_to_prolog('data/new_dataset.csv','src/kb.pl', selected_columns)
+    #write_player_info(local_df)
 
     # Create a Prolog instance
     prolog = Prolog()
 
-    # Define the Prolog facts
-    prolog.assertz("player_stats(2689, 'Filip ?uri?i?', 'SRB', 'MFFW', 'Sampdoria', 1.09, 28.9, 3.2, 23.5, 1.84)")
-    prolog.assertz("player_stats(1234, 'Another Player', 'Country', 'Position', 'Team', 0.6, 25.0, 2.5, 20.0, 1.5)")
+    # Consult the Prolog file containing the player facts
+    prolog.consult("src/kb.pl")
+    # Query for strong dribblers
+    results = prolog.query("strong_playmaker(Player)")
 
-    # Define the Prolog rule for strong dribblers
-    prolog.assertz("(strong_dribbler(Player) :- player_stats(_, Player, _, _, _, ToSuc, _, _, _, _), ToSuc > 0.7293638392857144)")
+    # Print the results
+    print("Strong playmakers:\n")
+    for result in results:
+        print(result["Player"])
 
     # Query for strong dribblers
     results = prolog.query("strong_dribbler(Player)")
 
     # Print the results
-    print("Strong dribblers:")
+    print("\n\nStrong dribblers:\n")
     for result in results:
         print(result["Player"])
 
+    # CREA ATTRIBUTO strong_dribbler nel dataset csv (imposta a true/false usando  giocatori ritornati dalla query)
+    # CREA ATTRIBUTO strong_playmaker nel dataset csv (imposta a true/false usando  giocatori ritornati dalla query)
 
-
-
-    # Print the results
-    for result in results:
-        print("Strong dribbler:", result["Player"])
 
     # Fase 2: #Aggiungi al dataset attributi prelevati dal web semantico
     #run_semantic_integration()
-    
+
 
     # Fase 3: Ragionamento relazionale
     #perform_relational_reasoning()
