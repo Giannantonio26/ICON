@@ -1,8 +1,6 @@
 import csv
 
 
-
-#Funzione che scrive un assiomar nel file kb.pl
 def write_fact_to_file(fact, file_path):
     # Verifica se il fatto è già presente
     with open(file_path, 'r', encoding='utf-8') as file:

@@ -3,15 +3,23 @@ from data_processing import *
 from PlayersStatsProlog import *
 from pyswip import Prolog
 from utils import *
+import os
+from semantic_web import *
 
 def main():
     #carica il dataset CSV
-    file_path = 'data/dataset.csv'
+    file_separator = os.path.sep
+    current_directory = os.getcwd()
+    if("PROGETTO_ICON"+file_separator+"ICON" in current_directory):
+        file_path_dataset = "data"+file_separator+"dataset.csv"
+    else:
+        file_path_dataset = "ICON"+file_separator+"data"+file_separator+"dataset.csv"
+
     # Leggi il file CSV senza specificare l'encoding
     try:
-        local_df = pd.read_csv(file_path,sep=";")
+        local_df = pd.read_csv(file_path_dataset,sep=";")
     except UnicodeDecodeError:
-        local_df = pd.read_csv(file_path, encoding='latin-1',sep=";")
+        local_df = pd.read_csv(file_path_dataset, encoding='latin-1',sep=";")
     if local_df is None:
         print("Errore nel caricamento del file CSV.")
     else:
@@ -21,18 +29,23 @@ def main():
 
     #write_player_info(local_df)
 
+    list_playmakers = []
+    list_dribblers = []
+
     # Create a Prolog instance
     prolog = Prolog()
 
     # Consult the Prolog file containing the player facts
     prolog.consult("src/kb.pl")
-    # Query for strong dribblers
+
+    # Query for strong playermer
     results = prolog.query("strong_playmaker(Player)")
 
     # Print the results
     print("Strong playmakers:\n")
     for result in results:
-        print(result["Player"])
+        list_playmakers.append(result['Player'])
+        #print(result["Player"])
 
     # Query for strong dribblers
     results = prolog.query("strong_dribbler(Player)")
@@ -40,15 +53,17 @@ def main():
     # Print the results
     print("\n\nStrong dribblers:\n")
     for result in results:
-        print(result["Player"])
+        list_dribblers.append(result['Player'])
+        #print(result["Player"])
 
-    # CREA ATTRIBUTO strong_dribbler nel dataset csv (imposta a true/false usando  giocatori ritornati dalla query)
-    # CREA ATTRIBUTO strong_playmaker nel dataset csv (imposta a true/false usando  giocatori ritornati dalla query)
-
+    # CREA ATTRIBUTO dribbler nel dataset csv (imposta a true/false usando  giocatori ritornati dalla query)
+    # CREA ATTRIBUTO playmaker nel dataset csv (imposta a true/false usando  giocatori ritornati dalla query)
+    file_path_new_dataset= file_path_dataset.replace("dataset.csv","new_dataset.csv")
+    add_new_attributes(file_path_dataset, file_path_new_dataset, list_dribblers, list_playmakers)
 
     # Fase 2: #Aggiungi al dataset attributi prelevati dal web semantico
-    #run_semantic_integration()
-
+        
+    add_height_from_semantic_web(file_path_new_dataset, file_path_new_dataset)
 
     # Fase 3: Ragionamento relazionale
     #perform_relational_reasoning()
