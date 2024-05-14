@@ -2,15 +2,18 @@ import csv
 import os
 import pandas as pd
 
-def load_dataset():
+
+def getFilePathDataSet(name_dataset):
     file_separator = os.path.sep
     current_directory = os.getcwd()
     if("PROGETTO_ICON"+file_separator+"ICON" in current_directory):
-        file_path_dataset = "data"+file_separator+"dataset.csv"
+        file_path_dataset = "data"+file_separator+name_dataset
     else:
-        file_path_dataset = "ICON"+file_separator+"data"+file_separator+"dataset.csv"
+        file_path_dataset = "ICON"+file_separator+"data"+file_separator+name_dataset
+    return file_path_dataset
 
-    # Leggi il file CSV senza specificare l'encoding
+def loadDataset(name_dataset):
+    file_path_dataset = getFilePathDataSet(name_dataset)
     try:
         local_df = pd.read_csv(file_path_dataset,sep=";")
     except UnicodeDecodeError:
@@ -20,9 +23,9 @@ def load_dataset():
     else:
         print("ok")
 
-    return [local_df, file_path_dataset]
+    return local_df
 
-def add_new_attributes(input_file, output_file, list_dribblers, list_playmakers):
+def addNewAttributes(input_file, output_file, list_dribblers, list_playmakers):
     # Open the input CSV file and read the data
     with open(input_file, mode='r', newline='', encoding='latin-1') as csv_file:
         reader = csv.DictReader(csv_file, delimiter=';')

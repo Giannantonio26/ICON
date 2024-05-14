@@ -1,6 +1,6 @@
 import csv
 from pyswip import Prolog
-from utils import add_new_attributes
+from utils import addNewAttributes
 # Function to write fact to the Prolog file
 def write_fact_to_file(fact, file_path):
     # Verifica se il fatto è già presente
@@ -73,7 +73,7 @@ def inference_data(file_path_dataset):
     print("Strong playmakers:\n")
     for result in results:
         list_playmakers.append(result['Player'])
-        #print(result["Player"])
+        print(result["Player"])
 
     # Query for strong dribblers
     results = prolog.query("strong_dribbler(Player)")
@@ -82,10 +82,10 @@ def inference_data(file_path_dataset):
     print("\n\nStrong dribblers:\n")
     for result in results:
         list_dribblers.append(result['Player'])
-        #print(result["Player"])
+        print(result["Player"])
 
     file_path_new_dataset = file_path_dataset.replace("dataset.csv","new_dataset.csv")
-    add_new_attributes(file_path_dataset, file_path_new_dataset, list_dribblers, list_playmakers)
+    addNewAttributes(file_path_dataset, file_path_new_dataset, list_dribblers, list_playmakers)
 
     return file_path_new_dataset
 

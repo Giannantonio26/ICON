@@ -1,12 +1,14 @@
 from data_processing import *
 from prolog import *
 from utils import *
-import os
-from semantic_web import *
+from semanticWeb import *
+from bayesianNetwork import bNetCreation
 
 def main():
+
+    file_path_dataset = getFilePathDataSet("dataset.csv")
     # 1. CARICAMENTO DATASET CSV
-    [local_df, file_path_dataset] = load_dataset()
+    local_df = loadDataset("dataset.csv")
 
     # 2. DATASET CLEANING
     #local_df = preprocess_data(local_df, "data/new_dataset.csv")  
@@ -20,7 +22,10 @@ def main():
     # 5. WEB SEMANTICO    
     #add_height_from_semantic_web(file_path_new_dataset, file_path_new_dataset)
 
-
+    # 6. BAYESIAN NETWORK
+    # carico dataset aggiornato
+    [newDataset] = loadDataset("new_dataset.csv")
+    bNetCreation(newDataset)
 
     # Fase 4: Addestramento del modello supervisionato
     #train_supervised_model()
