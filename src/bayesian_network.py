@@ -3,6 +3,7 @@ import networkx as nx
 from matplotlib import pyplot as plt
 from pgmpy.estimators import MaximumLikelihoodEstimator, HillClimbSearch
 from pgmpy.models import BayesianNetwork
+import torch.optim as optim
 
 # Funzione che visualizza il grafo del Bayesian Network
 def visualizeBayesianNetwork(bayesianNetwork: BayesianNetwork):

@@ -3,6 +3,7 @@ from PlayerStatsProlog import *
 from utils import *
 from semanticWeb import *
 from bayesian_network import *
+from sklearn.preprocessing import MinMaxScaler, KBinsDiscretizer
 
 
 def main():
