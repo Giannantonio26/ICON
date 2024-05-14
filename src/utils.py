@@ -2,6 +2,15 @@ import csv
 import os
 import pandas as pd
 
+def getFilePathKB():
+    file_separator = os.path.sep
+    current_directory = os.getcwd()
+    if("PROGETTO_ICON"+file_separator+"ICON" in current_directory):
+        file_path_kb = "src/kb.pl"
+    else:
+        file_path_kb = "ICON"+file_separator+"src/kb.pl"
+    return file_path_kb
+
 
 def getFilePathDataSet(name_dataset):
     file_separator = os.path.sep

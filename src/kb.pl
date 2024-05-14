@@ -2688,5 +2688,6 @@ player_stats(2687, 'Martin Ødegaard', 'NOR', 'MF', 'Arsenal',1684 ,1.28, 40.5, 
 player_stats(2688, 'Milan ?uri?', 'BIH', 'FW', 'Hellas Verona',703 ,0.13, 39.4, 5.51, 19.7, 1.54, 19.7, 2.31, 0.38).
 player_stats(2689, 'Filip ?uri?i?', 'SRB', 'MFFW', 'Sampdoria',1326 ,1.09, 28.9, 3.2, 23.5, 1.84, 23.5, 3.54, 2.24).
 
-(strong_dribbler(Player) :- player_stats(_, Player, _, _, _, Min, ToSuc, _, _, _, _, _, _, _), ToSuc > 1.10, Min > 1000).
-(strong_playmaker(Player) :- player_stats(_, Player, _, _, _, Min, _, Rec, RecProg, PasTotCmp, PasAss, PasCmp, PasProg, PasLonCmp),  Min>1000, Rec>34, RecProg>3, PasTotCmp>33, PasAss>0.85, PasCmp>33, PasProg>3, PasLonCmp>3).
+        (strong_dribbler(Player) :- player_stats(_, Player, _, _, _, Min, ToSuc, _, _, _, _, _, _, _), ToSuc > 1.10, Min > 1000).
+        (strong_playmaker(Player) :- player_stats(_, Player, _, _, _, Min, _, Rec, RecProg, PasTotCmp, PasAss, PasCmp, PasProg, PasLonCmp),  Min>1000, Rec>34, RecProg>3, PasTotCmp>33, PasAss>0.85, PasCmp>33, PasProg>3, PasLonCmp>3).
+    
