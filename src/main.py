@@ -2,6 +2,8 @@ from data_processing import *
 from PlayerStatsProlog import *
 from utils import *
 from semanticWeb import *
+from bayesian_network import *
+
 
 def main():
     file_path_dataset = getFilePathDataSet("dataset.csv")
@@ -26,10 +28,8 @@ def main():
 
     # 6. BAYESIAN NETWORK
     # carico dataset aggiornato
-    '''
     [newDataset] = loadDataset("new_dataset.csv")
     bNetCreation(newDataset)
-    '''
 
 
     # Fase 4: Addestramento del modello supervisionato
