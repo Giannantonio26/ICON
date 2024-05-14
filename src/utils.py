@@ -1,4 +1,26 @@
 import csv
+import os
+import pandas as pd
+
+def load_dataset():
+    file_separator = os.path.sep
+    current_directory = os.getcwd()
+    if("PROGETTO_ICON"+file_separator+"ICON" in current_directory):
+        file_path_dataset = "data"+file_separator+"dataset.csv"
+    else:
+        file_path_dataset = "ICON"+file_separator+"data"+file_separator+"dataset.csv"
+
+    # Leggi il file CSV senza specificare l'encoding
+    try:
+        local_df = pd.read_csv(file_path_dataset,sep=";")
+    except UnicodeDecodeError:
+        local_df = pd.read_csv(file_path_dataset, encoding='latin-1',sep=";")
+    if local_df is None:
+        print("Errore nel caricamento del file CSV.")
+    else:
+        print("ok")
+
+    return [local_df, file_path_dataset]
 
 def add_new_attributes(input_file, output_file, list_dribblers, list_playmakers):
     # Open the input CSV file and read the data
