@@ -29,10 +29,38 @@ def main():
 
     # 6. BAYESIAN NETWORK
     # carico dataset aggiornato
-    [newDataset] = loadDataset("new_dataset.csv")
+    newDataset = loadDataset("new_dataset.csv")
+    # rimuovo righe con valori nulli (perchè mi dava errore per righe con valori nulli)
+    newDataset = newDataset.dropna()
+
+    # Calcola il numero di righe da eliminare
+    rows_to_drop = int(len(newDataset) * 0.99)
+
+    # Seleziona casualmente il 30% delle righe da eliminare
+    rows_to_keep = newDataset.sample(n=len(newDataset) - rows_to_drop, random_state=42)
+
+    # Crea un nuovo dataset con le sole righe selezionate
+    newDataset = newDataset.loc[rows_to_keep.index]
+    
+
+    newDataset = newDataset[['Pos', 'Goals', 'Assists', 'PasTotCmp%', 'Tkl', 'PasCrs', 'PasProg', 'PPA', 'ScaDrib', 'Recov', 'height', 'dribbler']]
+
+    print(newDataset)
+
+    #discretizzo il dataset
+    # Explicitly set subsample to None to silence the warning
+    discretizer = KBinsDiscretizer(encode='ordinal', strategy='uniform', subsample=None)
+
+    # Select columns of float64 and int64 types
+    continuos_columns = newDataset.select_dtypes(include=['float64', 'int64']).columns
+
+    # Apply the discretizer to the selected columns
+    newDataset[continuos_columns] = discretizer.fit_transform(newDataset[continuos_columns])
+
+    #Creo o leggo la rete bayesiana a seconda delle necessità
+    bayesianNetwork = bNetCreation(newDataset)
+
     bNetCreation(newDataset)
-
-
     # Fase 4: Addestramento del modello supervisionato
     #train_supervised_model()
 
