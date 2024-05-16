@@ -30,7 +30,7 @@ def main():
     # 6. BAYESIAN NETWORK
     # carico dataset aggiornato
     newDataset = loadDataset("new_dataset.csv")
-    # rimuovo righe con valori nulli (perchè mi dava errore per righe con valori nulli)
+    # rimuovo righe con valori nulli
     newDataset = newDataset.dropna()
     # Calcola il numero di righe da eliminare
     rows_to_drop = int(len(newDataset) * 0.70)
