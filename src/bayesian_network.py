@@ -5,6 +5,17 @@ from pgmpy.estimators import MaximumLikelihoodEstimator, HillClimbSearch
 from pgmpy.models import BayesianNetwork
 import torch.optim as optim
 
+
+
+# Funzione che carica la rete bayesiana da file
+def loadBayesianNetwork():
+    with open('models/modello.pkl', 'rb') as input:
+        model = pickle.load(input)
+    visualizeBayesianNetwork(model)
+    # visualizeInfo(model)
+    return model
+
+
 # Funzione che visualizza il grafo del Bayesian Network
 def visualizeBayesianNetwork(bayesianNetwork: BayesianNetwork):
     G = nx.MultiDiGraph(bayesianNetwork.edges())
