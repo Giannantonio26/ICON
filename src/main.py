@@ -26,7 +26,7 @@ def main():
 
     # 5. WEB SEMANTICO    
     #add_height_from_semantic_web(file_path_new_dataset, file_path_new_dataset)
-
+    
     # 6. BAYESIAN NETWORK
     # carico dataset aggiornato
     newDataset = loadDataset("new_dataset.csv")
@@ -34,19 +34,22 @@ def main():
     newDataset = newDataset.dropna()
 
     # Calcola il numero di righe da eliminare
-    rows_to_drop = int(len(newDataset) * 0.99)
+    rows_to_drop = int(len(newDataset) * 0.70)
 
-    # Seleziona casualmente il 30% delle righe da eliminare
+    # Seleziona casualmente il n% delle righe da eliminare
     rows_to_keep = newDataset.sample(n=len(newDataset) - rows_to_drop, random_state=42)
 
     # Crea un nuovo dataset con le sole righe selezionate
     newDataset = newDataset.loc[rows_to_keep.index]
     
 
-    newDataset = newDataset[['Pos', 'Goals', 'Assists', 'PasTotCmp%', 'Tkl', 'PasCrs', 'PasProg', 'PPA', 'ScaDrib', 'Recov', 'height', 'dribbler']]
+    selected_columns = [
+        'Pos', 'TouDefPen', 'TouDef3rd', 'TouMid3rd', 'TouAtt3rd', 
+        'Tkl', 'PasProg', 'PPA', 'ScaDrib', 'Recov', 'height', 
+        'dribbler', 'playmaker'
+    ]
 
-    print(newDataset)
-
+    newDataset = newDataset[selected_columns]
     #discretizzo il dataset
     # Explicitly set subsample to None to silence the warning
     discretizer = KBinsDiscretizer(encode='ordinal', strategy='uniform', subsample=None)
@@ -57,10 +60,18 @@ def main():
     # Apply the discretizer to the selected columns
     newDataset[continuos_columns] = discretizer.fit_transform(newDataset[continuos_columns])
 
-    #Creo o leggo la rete bayesiana a seconda delle necessità
-    bayesianNetwork = bNetCreation(newDataset)
+    print(newDataset)
 
-    bNetCreation(newDataset)
+    #Creo o leggo la rete bayesiana a seconda delle necessità
+    #bayesianNetwork = create_BN(newDataset)
+    bayesianNetwork = loadBayesianNetwork()
+
+    #GENERAZIONE DI UN ESEMPIO RANDOMICO e PREDIZIONE DELLA SUA CLASSE
+    esempioRandom = generateRandomExample(bayesianNetwork)
+    print("ESEMPIO RANDOMICO GENERATO --->  ",esempioRandom)
+    print("PREDIZIONE DEL SAMPLE RANDOM")
+    predici(bayesianNetwork, esempioRandom.to_dict('records')[0], "Pos")
+    
     # Fase 4: Addestramento del modello supervisionato
     #train_supervised_model()
 
