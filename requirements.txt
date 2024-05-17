@@ -1,3 +1,6 @@
 matplotlib
 pandas
 networkx
+pyswip
+SPARQLWrapper
+pgmpy

@@ -4,6 +4,7 @@ from matplotlib import pyplot as plt
 from pgmpy.estimators import MaximumLikelihoodEstimator, HillClimbSearch
 from pgmpy.models import BayesianNetwork
 import torch.optim as optim
+from pgmpy.inference import VariableElimination
 
 
 
@@ -63,11 +64,10 @@ def create_BN(dataSet):
     visualizeBayesianNetwork(model)
     return model
 
-
-#Predico il valore di differentialColumn per l'esempio
-def predici(bayesianNetwork: BayesianNetwork, example, differentialColumn):
+#Predico il valore di column per l'esempio
+def predici(bayesianNetwork: BayesianNetwork, example, column):
     inference = VariableElimination(bayesianNetwork)
-    result = inference.query(variables=[differentialColumn], evidence=example)
+    result = inference.query(variables=[column], evidence=example)
     print(result)
 
 #genera un esempio randomico

@@ -33,9 +33,9 @@ def main():
     # rimuovo righe con valori nulli
     newDataset = newDataset.dropna()
     # Calcola il numero di righe da eliminare
-    rows_to_drop = int(len(newDataset) * 0.70)
+    rows_to_drop = int(len(newDataset) * 0.90)
     # Seleziona casualmente le righe da mantenere
-    rows_to_keep = newDataset.sample(n=len(newDataset) - rows_to_drop, random_state=42)
+    rows_to_keep = newDataset.sample(n=len(newDataset) - rows_to_drop, random_state=40)
     # Crea un nuovo dataset con le sole righe selezionate
     newDataset = newDataset.loc[rows_to_keep.index]
 
@@ -47,20 +47,18 @@ def main():
 
     newDataset = newDataset[selected_columns]
     #discretizzo il dataset
-    # Explicitly set subsample to None to silence the warning
     discretizer = KBinsDiscretizer(encode='ordinal', strategy='uniform', subsample=None)
-    # Select columns of float64 and int64 types
+    # seleziona le colonne nel dataset che contengono valori di tipo float64 o int64 
     continuos_columns = newDataset.select_dtypes(include=['float64', 'int64']).columns
-    # Apply the discretizer to the selected columns
+    # Applica il "discretizer" alle colonne selezionate
     newDataset[continuos_columns] = discretizer.fit_transform(newDataset[continuos_columns])
     print(newDataset)
     #Creazione o lettura della rete bayesiana in base alle necessità
-    #bayesianNetwork = create_BN(newDataset)
-    bayesianNetwork = loadBayesianNetwork()
-
-    #GENERAZIONE DI UN ESEMPIO RANDOMICO e PREDIZIONE DELLA SUA CLASSE
+    bayesianNetwork = create_BN(newDataset)
+    #bayesianNetwork = loadBayesianNetwork()
+    #GENERAZIONE DI UN ESEMPIO RANDOMICO e PREDIZIONE DEL RUOLO DI UN GIOCATORE
     esempioRandom = generateRandomExample(bayesianNetwork)
-    print("ESEMPIO RANDOMICO GENERATO --->  ",esempioRandom)
+    print("ESEMPIO RANDOMICO GENERATO\n",esempioRandom)
     print("PREDIZIONE DEL SAMPLE RANDOM")
     predici(bayesianNetwork, esempioRandom.to_dict('records')[0], "Pos")
     
