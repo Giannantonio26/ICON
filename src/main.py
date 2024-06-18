@@ -68,8 +68,6 @@ def main():
     # Fase 5: Addestramento del modello non supervisionato
     #train_unsupervised_model()
 
-    # Fase 6: Confronto dei modelli
-    #compare_models()
 
 
 
