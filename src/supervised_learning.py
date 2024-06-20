@@ -194,15 +194,46 @@ def trainModelKFold(dataSet, differentialColumn):
     model['RandomForestRegressor']['mae_list'] = results_rfc['mae']
     model['RandomForestRegressor']['mse_list'] = -results_rfc['mse']
     
-    #plot_learning_curves(dtc, X, y, differentialColumn, 'DecisionTree')
-    #plot_learning_curves(rfc, X, y, differentialColumn, 'RandomForest')
-    #plot_learning_curves(reg, X, y, differentialColumn, 'LinearRegression')
+    plot_learning_curves(dtc, X, y, 'DecisionTree')
+    plot_learning_curves(rfc, X, y, 'RandomForest')
+    plot_learning_curves(reg, X, y, 'LinearRegression')
     visualizeMetricsGraphs(model)
     
     return model
 
 
-#def plot_learning_curves(model, X, y, differentialColumn, model_name):
+def plot_learning_curves(model, X, y, model_name):
+    # Generiamo i dati della curva di apprendimento
+    train_sizes, train_scores, test_scores = learning_curve(
+        model, X, y, cv=5, scoring='neg_mean_squared_error', 
+        train_sizes=np.linspace(0.1, 1.0, 10), random_state=42)
+    
+    # Calcoliamo la media e la deviazione standard degli errori
+    train_scores_mean = -np.mean(train_scores, axis=1)
+    train_scores_std = np.std(train_scores, axis=1)
+    test_scores_mean = -np.mean(test_scores, axis=1)
+    test_scores_std = np.std(test_scores, axis=1)
+
+    # Tracciamo le curve di apprendimento
+    plt.figure(figsize=(12, 6))
+    plt.title(f"Learning Curves ({model_name})")
+    plt.xlabel("Training examples")
+    plt.ylabel("Error")
+    plt.grid()
+    
+    # Plot dei punteggi di addestramento
+    plt.fill_between(train_sizes, train_scores_mean - train_scores_std,
+                     train_scores_mean + train_scores_std, alpha=0.1, color="r")
+    plt.plot(train_sizes, train_scores_mean, 'o-', color="r", label="Training error")
+    
+    # Plot dei punteggi di validazione
+    plt.fill_between(train_sizes, test_scores_mean - test_scores_std,
+                     test_scores_mean + test_scores_std, alpha=0.1, color="g")
+    plt.plot(train_sizes, test_scores_mean, 'o-', color="g", label="Cross-validation error")
+    
+    plt.legend(loc="best")
+    plt.show()
+
 
 
 #Funzione che visualizza i grafici delle metriche per ogni modello
