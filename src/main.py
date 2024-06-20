@@ -68,7 +68,7 @@ def main():
     # rimuovo righe con valori nulli
     newDataset = newDataset.dropna()
     # Calcola il numero di righe da eliminare
-    rows_to_drop = int(len(newDataset) * 0.90)
+    rows_to_drop = int(len(newDataset) * 0.60)
     # Seleziona casualmente le righe da mantenere
     rows_to_keep = newDataset.sample(n=len(newDataset) - rows_to_drop, random_state=40)
     # Crea un nuovo dataset con le sole righe selezionate

@@ -229,7 +229,7 @@ def plot_learning_curves(model, X, y, model_name):
     # Plot dei punteggi di validazione
     plt.fill_between(train_sizes, test_scores_mean - test_scores_std,
                      test_scores_mean + test_scores_std, alpha=0.1, color="g")
-    plt.plot(train_sizes, test_scores_mean, 'o-', color="g", label="Cross-validation error")
+    plt.plot(train_sizes, test_scores_mean, 'o-', color="g", label="Test error")
     
     plt.legend(loc="best")
     plt.show()
