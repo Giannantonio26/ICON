@@ -9,6 +9,8 @@ from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler
+import matplotlib.pyplot as plt
+import numpy as np
 
 
 def returnBestHyperparametres(dataset, differentialColumn):
@@ -42,9 +44,10 @@ def returnBestHyperparametres(dataset, differentialColumn):
                                      ('regressor', LinearRegression())]),
             'params': {
                 'regressor__fit_intercept': [True, False],
-                'regressor__normalize': [True, False]
+                'regressor__copy_X': [True, False],
             }
         },
+
         'RandomForestRegressor': {
             'model': Pipeline(steps=[('preprocessor', preprocessor),
                                      ('regressor', RandomForestRegressor(random_state=42))]),
@@ -86,3 +89,51 @@ def returnBestHyperparametres(dataset, differentialColumn):
             best_params[model_name] = None
 
     return best_params
+
+def print_hyperparameters_table(best_params):
+    data = []
+    for model, params in best_params.items():
+        if params is not None:
+            data.append({
+                'Model': model,
+                'Hyperparameters': params,
+                'MSE': params.pop('mse', None)
+            })
+    
+    df = pd.DataFrame(data)
+    pd.set_option('display.max_colwidth', None)
+    print(df)
+
+
+#Funzione che visualizza i grafici delle metriche per ogni modello
+def visualizeMetricsGraphs(model):
+    models = list(model.keys())
+
+    # Creazione di un array numpy per ogni metrica
+    accuracy = np.array([model[clf]['accuracy_list'] for clf in models])
+    precision = np.array([model[clf]['precision_list'] for clf in models])
+    recall = np.array([model[clf]['recall_list'] for clf in models])
+    f1 = np.array([model[clf]['f1'] for clf in models])
+
+    # Calcolo delle medie per ogni modello e metrica
+    mean_accuracy = np.mean(accuracy, axis=1)
+    mean_precision = np.mean(precision, axis=1)
+    mean_recall = np.mean(recall, axis=1)
+    mean_f1 = np.mean(f1, axis=1)
+
+    # Creazione del grafico a barre
+    bar_width = 0.2
+    index = np.arange(len(models))
+    plt.bar(index, mean_accuracy, bar_width, label='Accuracy')
+    plt.bar(index + bar_width, mean_precision, bar_width, label='Precision')
+    plt.bar(index + 2 * bar_width, mean_recall, bar_width, label='Recall')
+    plt.bar(index + 3 * bar_width, mean_f1, bar_width, label='F1')
+    # Aggiunta di etichette e legenda
+    plt.xlabel('Modelli')
+    plt.ylabel('Punteggi medi')
+    plt.title('Punteggio medio per ogni modello')
+    plt.xticks(index + 1.5 * bar_width, models)
+    plt.legend()
+
+    # Visualizzazione del grafico
+    plt.show()
