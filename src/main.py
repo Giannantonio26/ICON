@@ -52,7 +52,6 @@ def main():
     continuos_columns = newDataset.select_dtypes(include=['float64', 'int64']).columns
     # Applica il "discretizer" alle colonne selezionate
     newDataset[continuos_columns] = discretizer.fit_transform(newDataset[continuos_columns])
-    print(newDataset)
     #Creazione o lettura della rete bayesiana in base alle necessità
     '''
     bayesianNetwork = create_BN(newDataset)
@@ -75,10 +74,10 @@ def main():
     # Crea un nuovo dataset con le sole righe selezionate
     newDataset = newDataset.loc[rows_to_keep.index]
     differentialColumn = 'Goals'
-    best_hyperparams = returnBestHyperparametres(newDataset, differentialColumn)
-    print(best_hyperparams)
+    #Addestro e valuto i modelli
+    model= trainModelKFold(newDataset, differentialColumn)
+    #print(model)
     # ADDESTRAMENTO NON SUPERVISIONATO
-    #train_unsupervised_model()
 
 
 if __name__ == "__main__":

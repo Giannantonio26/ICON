@@ -11,9 +11,12 @@ from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
 import numpy as np
+from tabulate import tabulate
+from sklearn.model_selection import RepeatedKFold, learning_curve, train_test_split, cross_val_score
+from sklearn.metrics import make_scorer, mean_squared_error, mean_absolute_error
 
 
-def returnBestHyperparametres(dataset, differentialColumn):
+def getBestHyperparametres(dataset, differentialColumn):
     # Separate the features (X) from the target variable (y)
     X = dataset.drop(columns=[differentialColumn])
     y = dataset[differentialColumn]
@@ -94,46 +97,143 @@ def print_hyperparameters_table(best_params):
     data = []
     for model, params in best_params.items():
         if params is not None:
-            data.append({
-                'Model': model,
-                'Hyperparameters': params,
-                'MSE': params.pop('mse', None)
-            })
+            for param, value in params.items():
+                if value==None:
+                    value = "None"
+                if param != 'mse':
+                    data.append({
+                        'Modello': model,
+                        'Parametro': param,
+                        'Valore': value
+                    })
     
     df = pd.DataFrame(data)
     pd.set_option('display.max_colwidth', None)
-    print(df)
+    print(tabulate(df, headers='keys', tablefmt='fancy_grid', showindex=False))
+
+
+
+# Funzione che esegue il training del modello mediante cross validation
+def trainModelKFold(dataSet, differentialColumn):
+    model = {
+        'LinearRegression': {
+            'mae_list': [],
+            'mse_list': [],
+        },
+        'RandomForestRegressor': {
+            'mae_list': [],
+            'mse_list': [],
+        },
+        'DecisionTreeRegressor': {
+            'mae_list': [],
+            'mse_list': [],
+        }
+    }
+    
+    bestParameters = getBestHyperparametres(dataSet, differentialColumn)
+    print("\033[94m" + str(bestParameters) + "\033[0m")
+    
+    categorical_cols = dataSet.select_dtypes(include=['object']).columns.tolist()
+    numeric_cols = dataSet.select_dtypes(exclude=['object']).columns.tolist()
+    numeric_cols.remove(differentialColumn)
+    
+    preprocessor = ColumnTransformer(
+        transformers=[
+            ('num', 'passthrough', numeric_cols),
+            ('cat', OneHotEncoder(handle_unknown='ignore'), categorical_cols)
+        ])
+    
+    X = dataSet.drop(differentialColumn, axis=1)
+    y = dataSet[differentialColumn]
+
+    dtc = Pipeline(steps=[
+        ('preprocessor', preprocessor),
+        ('regressor', DecisionTreeRegressor(
+            splitter='best',
+            max_depth=bestParameters['DecisionTreeRegressor']['regressor__max_depth'],
+            min_samples_split=bestParameters['DecisionTreeRegressor']['regressor__min_samples_split'],
+            min_samples_leaf=bestParameters['DecisionTreeRegressor']['regressor__min_samples_leaf'],
+            random_state=42
+        ))
+    ])
+
+    rfc = Pipeline(steps=[
+        ('preprocessor', preprocessor),
+        ('regressor', RandomForestRegressor(
+            n_estimators=bestParameters['RandomForestRegressor']['regressor__n_estimators'],
+            max_depth=bestParameters['RandomForestRegressor']['regressor__max_depth'],
+            min_samples_split=bestParameters['RandomForestRegressor']['regressor__min_samples_split'],
+            min_samples_leaf=bestParameters['RandomForestRegressor']['regressor__min_samples_leaf'],
+            random_state=42
+        ))
+    ])
+
+    reg = Pipeline(steps=[
+        ('preprocessor', preprocessor),
+        ('regressor', LinearRegression(
+            fit_intercept=bestParameters['LinearRegression']['regressor__fit_intercept'],
+            copy_X=bestParameters['LinearRegression']['regressor__copy_X']
+        ))
+    ])
+    
+    cv = RepeatedKFold(n_splits=5, n_repeats=5, random_state=42)
+    
+    scoring_metrics = {
+        'mae': make_scorer(mean_absolute_error),
+        'mse': make_scorer(mean_squared_error, greater_is_better=False),
+    }
+    
+    results_dtc = {metric: cross_val_score(dtc, X, y, scoring=scorer, cv=cv) for metric, scorer in scoring_metrics.items()}
+    results_rfc = {metric: cross_val_score(rfc, X, y, scoring=scorer, cv=cv) for metric, scorer in scoring_metrics.items()}
+    results_reg = {metric: cross_val_score(reg, X, y, scoring=scorer, cv=cv) for metric, scorer in scoring_metrics.items()}
+    
+    model['LinearRegression']['mae_list'] = results_reg['mae']
+    model['LinearRegression']['mse_list'] = -results_reg['mse']
+    model['DecisionTreeRegressor']['mae_list'] = results_dtc['mae']
+    model['DecisionTreeRegressor']['mse_list'] = -results_dtc['mse']
+    model['RandomForestRegressor']['mae_list'] = results_rfc['mae']
+    model['RandomForestRegressor']['mse_list'] = -results_rfc['mse']
+    
+    #plot_learning_curves(dtc, X, y, differentialColumn, 'DecisionTree')
+    #plot_learning_curves(rfc, X, y, differentialColumn, 'RandomForest')
+    #plot_learning_curves(reg, X, y, differentialColumn, 'LinearRegression')
+    visualizeMetricsGraphs(model)
+    
+    return model
+
+
+#def plot_learning_curves(model, X, y, differentialColumn, model_name):
 
 
 #Funzione che visualizza i grafici delle metriche per ogni modello
 def visualizeMetricsGraphs(model):
-    models = list(model.keys())
+    # Estraiamo le metriche dai risultati del modello
+    metrics = ['mae', 'mse']
+    models = ['LinearRegression', 'DecisionTreeRegressor', 'RandomForestRegressor']
+    
+    # Prepariamo i dati per il plot
+    mae_scores = {
+        'LinearRegression': model['LinearRegression']['mae_list'],
+        'DecisionTreeRegressor': model['DecisionTreeRegressor']['mae_list'],
+        'RandomForestRegressor': model['RandomForestRegressor']['mae_list']
+    }
+    
+    mse_scores = {
+        'LinearRegression': model['LinearRegression']['mse_list'],
+        'DecisionTreeRegressor': model['DecisionTreeRegressor']['mse_list'],
+        'RandomForestRegressor': model['RandomForestRegressor']['mse_list']
+    }
+    
+    fig, axes = plt.subplots(nrows=2, ncols=3, figsize=(15, 10))
+    fig.suptitle('Performance Metrics Comparison')
 
-    # Creazione di un array numpy per ogni metrica
-    accuracy = np.array([model[clf]['accuracy_list'] for clf in models])
-    precision = np.array([model[clf]['precision_list'] for clf in models])
-    recall = np.array([model[clf]['recall_list'] for clf in models])
-    f1 = np.array([model[clf]['f1'] for clf in models])
-
-    # Calcolo delle medie per ogni modello e metrica
-    mean_accuracy = np.mean(accuracy, axis=1)
-    mean_precision = np.mean(precision, axis=1)
-    mean_recall = np.mean(recall, axis=1)
-    mean_f1 = np.mean(f1, axis=1)
-
-    # Creazione del grafico a barre
-    bar_width = 0.2
-    index = np.arange(len(models))
-    plt.bar(index, mean_accuracy, bar_width, label='Accuracy')
-    plt.bar(index + bar_width, mean_precision, bar_width, label='Precision')
-    plt.bar(index + 2 * bar_width, mean_recall, bar_width, label='Recall')
-    plt.bar(index + 3 * bar_width, mean_f1, bar_width, label='F1')
-    # Aggiunta di etichette e legenda
-    plt.xlabel('Modelli')
-    plt.ylabel('Punteggi medi')
-    plt.title('Punteggio medio per ogni modello')
-    plt.xticks(index + 1.5 * bar_width, models)
-    plt.legend()
-
-    # Visualizzazione del grafico
+    for i, metric in enumerate(metrics):
+        for j, model_name in enumerate(models):
+            scores = mae_scores[model_name] if metric == 'mae' else mse_scores[model_name]
+            ax = axes[i, j]
+            ax.boxplot(scores, vert=False)
+            ax.set_title(f'{model_name} - {metric.upper()}')
+            ax.set_yticklabels([])
+    
+    plt.tight_layout()
     plt.show()
