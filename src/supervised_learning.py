@@ -112,6 +112,24 @@ def print_hyperparameters_table(best_params):
     print(tabulate(df, headers='keys', tablefmt='fancy_grid', showindex=False))
 
 
+# Funzione per calcolare deviazione standard e varianza
+def calculate_metrics(model, X_train, X_test, y_train, y_test):
+    model.fit(X_train, y_train)
+    train_preds = model.predict(X_train)
+    test_preds = model.predict(X_test)
+    
+    train_std = np.std(train_preds)
+    test_std = np.std(test_preds)
+    
+    train_var = np.var(train_preds)
+    test_var = np.var(test_preds)
+    
+    return {
+        "Train_Std": train_std,
+        "Test_Std": test_std,
+        "Train_Var": train_var,
+        "Test_Var": test_var
+    }
 
 # Funzione che esegue il training del modello mediante cross validation
 def trainModelKFold(dataSet, differentialColumn):
@@ -198,7 +216,7 @@ def trainModelKFold(dataSet, differentialColumn):
     plot_learning_curves(rfc, X, y, 'RandomForest')
     plot_learning_curves(reg, X, y, 'LinearRegression')
     visualizeMetricsGraphs(model)
-    
+
     return model
 
 
@@ -208,11 +226,25 @@ def plot_learning_curves(model, X, y, model_name):
         model, X, y, cv=5, scoring='neg_mean_squared_error', 
         train_sizes=np.linspace(0.1, 1.0, 10), random_state=42)
     
+    # Calcola gli errori su addestramento e test
+    train_errors = 1 - train_scores
+    test_errors = 1 - test_scores
+
+
     # Calcoliamo la media e la deviazione standard degli errori
     train_scores_mean = -np.mean(train_scores, axis=1)
     train_scores_std = np.std(train_scores, axis=1)
+    train_scores_var = np.var(train_errors, axis=1)
     test_scores_mean = -np.mean(test_scores, axis=1)
     test_scores_std = np.std(test_scores, axis=1)
+    test_scores_var = np.var(test_errors, axis=1)
+
+    
+    # Stampa deviazione standard e varianza
+    print(
+        f"\033[95m{model_name} - Train Error Std: {train_scores_std[-1]}, Test Error Std: {test_scores_std[-1]}, Train Error Var: {train_scores_var[-1]}, Test Error Var: {test_scores_var[-1]}\033[0m")
+
+
 
     # Tracciamo le curve di apprendimento
     plt.figure(figsize=(12, 6))
@@ -224,13 +256,11 @@ def plot_learning_curves(model, X, y, model_name):
     # Plot dei punteggi di addestramento
     plt.fill_between(train_sizes, train_scores_mean - train_scores_std,
                      train_scores_mean + train_scores_std, alpha=0.1, color="r")
-    plt.plot(train_sizes, train_scores_mean, 'o-', color="r", label="Training error")
-    
-    # Plot dei punteggi di validazione
+    plt.plot(train_sizes, train_scores_mean, 'o-', color="r", label="Training error")   
+    # Plot dei punteggi di test
     plt.fill_between(train_sizes, test_scores_mean - test_scores_std,
                      test_scores_mean + test_scores_std, alpha=0.1, color="g")
-    plt.plot(train_sizes, test_scores_mean, 'o-', color="g", label="Test error")
-    
+    plt.plot(train_sizes, test_scores_mean, 'o-', color="g", label="Test error")   
     plt.legend(loc="best")
     plt.show()
 
@@ -268,3 +298,4 @@ def visualizeMetricsGraphs(model):
     
     plt.tight_layout()
     plt.show()
+
