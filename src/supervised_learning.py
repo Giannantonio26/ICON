@@ -1,6 +1,6 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split, GridSearchCV
-from sklearn.linear_model import Ridge
+from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.metrics import mean_squared_error
@@ -37,14 +37,12 @@ def returnBestHyperparametres(dataset, differentialColumn):
 
     # Create pipelines for each model
     models = {
-        'Ridge': {
+        'LinearRegression': {
             'model': Pipeline(steps=[('preprocessor', preprocessor),
-                                     ('regressor', Ridge())]),
+                                     ('regressor', LinearRegression())]),
             'params': {
-                'regressor__alpha': [0.1, 1.0, 10.0],
                 'regressor__fit_intercept': [True, False],
-                'regressor__solver': ['auto', 'svd', 'cholesky', 'lsqr', 'sparse_cg', 'sag', 'saga'],
-                'regressor__max_iter': [1000, 5000, 10000]
+                'regressor__normalize': [True, False]
             }
         },
         'RandomForestRegressor': {

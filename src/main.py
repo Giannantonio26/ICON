@@ -78,8 +78,6 @@ def main():
     best_hyperparams = returnBestHyperparametres(newDataset, differentialColumn)
     print(best_hyperparams)
 
-
-
     # ADDESTRAMENTO NON SUPERVISIONATO
     #train_unsupervised_model()
 
