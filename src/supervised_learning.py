@@ -1,6 +1,6 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split, GridSearchCV
-from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import LinearRegression, Lasso
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.metrics import mean_squared_error
@@ -50,7 +50,14 @@ def getBestHyperparametres(dataset, differentialColumn):
                 'regressor__copy_X': [True, False],
             }
         },
-
+        'Lasso': {
+            'model': Pipeline(steps=[('preprocessor', preprocessor),
+                                     ('regressor', Lasso())]),
+            'params': {
+                'regressor__alpha': [0.1, 1.0, 10.0],
+                'regressor__fit_intercept': [True, False],
+            }
+        },
         'RandomForestRegressor': {
             'model': Pipeline(steps=[('preprocessor', preprocessor),
                                      ('regressor', RandomForestRegressor(random_state=42))]),
@@ -138,6 +145,10 @@ def trainModelKFold(dataSet, differentialColumn):
             'mae_list': [],
             'mse_list': [],
         },
+        'Lasso': {
+            'mae_list': [],
+            'mse_list': [],
+        },
         'RandomForestRegressor': {
             'mae_list': [],
             'mse_list': [],
@@ -193,7 +204,15 @@ def trainModelKFold(dataSet, differentialColumn):
             copy_X=bestParameters['LinearRegression']['regressor__copy_X']
         ))
     ])
-    
+
+    lasso = Pipeline(steps=[
+        ('preprocessor', preprocessor),
+        ('regressor', Lasso(
+            alpha=bestParameters['Lasso']['regressor__alpha'],
+            fit_intercept=bestParameters['Lasso']['regressor__fit_intercept']
+        ))
+    ])
+
     cv = RepeatedKFold(n_splits=5, n_repeats=5, random_state=42)
     
     scoring_metrics = {
@@ -204,17 +223,21 @@ def trainModelKFold(dataSet, differentialColumn):
     results_dtc = {metric: cross_val_score(dtc, X, y, scoring=scorer, cv=cv) for metric, scorer in scoring_metrics.items()}
     results_rfc = {metric: cross_val_score(rfc, X, y, scoring=scorer, cv=cv) for metric, scorer in scoring_metrics.items()}
     results_reg = {metric: cross_val_score(reg, X, y, scoring=scorer, cv=cv) for metric, scorer in scoring_metrics.items()}
-    
+    results_lasso = {metric: cross_val_score(lasso, X, y, scoring=scorer, cv=cv) for metric, scorer in scoring_metrics.items()}
+
     model['LinearRegression']['mae_list'] = results_reg['mae']
     model['LinearRegression']['mse_list'] = -results_reg['mse']
     model['DecisionTreeRegressor']['mae_list'] = results_dtc['mae']
     model['DecisionTreeRegressor']['mse_list'] = -results_dtc['mse']
     model['RandomForestRegressor']['mae_list'] = results_rfc['mae']
     model['RandomForestRegressor']['mse_list'] = -results_rfc['mse']
-    
-    plot_learning_curves(dtc, X, y, 'DecisionTree')
-    plot_learning_curves(rfc, X, y, 'RandomForest')
-    plot_learning_curves(reg, X, y, 'LinearRegression')
+    model['Lasso']['mae_list'] = results_lasso['mae']
+    model['Lasso']['mse_list'] = results_lasso['mse']
+
+    #plot_learning_curves(dtc, X, y, 'DecisionTree')
+    #plot_learning_curves(rfc, X, y, 'RandomForest')
+    #plot_learning_curves(reg, X, y, 'LinearRegression')
+    plot_learning_curves(lasso, X, y, 'LinearRegression con regolarizzatore L1')
     visualizeMetricsGraphs(model)
 
     return model

@@ -78,7 +78,7 @@ def main():
     model= trainModelKFold(newDataset, differentialColumn)
     #print(model)
     # ADDESTRAMENTO NON SUPERVISIONATO
-
+    
 
 if __name__ == "__main__":
     main()
