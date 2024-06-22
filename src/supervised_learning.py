@@ -65,7 +65,7 @@ def getBestHyperparametres(dataset, differentialColumn):
                 'regressor__n_estimators': [50, 100, 200],
                 'regressor__max_depth': [None, 10, 20, 30],
                 'regressor__min_samples_split': [2, 5, 10],
-                'regressor__min_samples_leaf': [1, 2, 4]
+                'regressor__min_samples_leaf': [1, 2, 4],
             }
         },
         'DecisionTreeRegressor': {
@@ -75,7 +75,7 @@ def getBestHyperparametres(dataset, differentialColumn):
                 'regressor__max_depth': [None, 10, 20, 30],
                 'regressor__min_samples_split': [2, 5, 10],
                 'regressor__min_samples_leaf': [1, 2, 4],
-                'regressor__splitter': ['best', 'random']
+                'regressor__splitter': ['best', 'random'],
             }
         }
     }
@@ -90,7 +90,7 @@ def getBestHyperparametres(dataset, differentialColumn):
             grid_search.fit(X_train, y_train)
             best_params[model_name] = grid_search.best_params_
             best_model = grid_search.best_estimator_
-            
+
             y_pred = best_model.predict(X_test)
             mse = mean_squared_error(y_test, y_pred)
             best_params[model_name]['mse'] = mse
@@ -182,7 +182,7 @@ def trainModelKFold(dataSet, differentialColumn):
             max_depth=bestParameters['DecisionTreeRegressor']['regressor__max_depth'],
             min_samples_split=bestParameters['DecisionTreeRegressor']['regressor__min_samples_split'],
             min_samples_leaf=bestParameters['DecisionTreeRegressor']['regressor__min_samples_leaf'],
-            random_state=42
+            random_state=42,
         ))
     ])
 
@@ -193,7 +193,7 @@ def trainModelKFold(dataSet, differentialColumn):
             max_depth=bestParameters['RandomForestRegressor']['regressor__max_depth'],
             min_samples_split=bestParameters['RandomForestRegressor']['regressor__min_samples_split'],
             min_samples_leaf=bestParameters['RandomForestRegressor']['regressor__min_samples_leaf'],
-            random_state=42
+            random_state=42,
         ))
     ])
 
@@ -234,9 +234,9 @@ def trainModelKFold(dataSet, differentialColumn):
     model['Lasso']['mae_list'] = results_lasso['mae']
     model['Lasso']['mse_list'] = results_lasso['mse']
 
-    #plot_learning_curves(dtc, X, y, 'DecisionTree')
-    #plot_learning_curves(rfc, X, y, 'RandomForest')
-    #plot_learning_curves(reg, X, y, 'LinearRegression')
+    plot_learning_curves(dtc, X, y, 'DecisionTree')
+    plot_learning_curves(rfc, X, y, 'RandomForest')
+    plot_learning_curves(reg, X, y, 'LinearRegression')
     plot_learning_curves(lasso, X, y, 'LinearRegression con regolarizzatore L1')
     visualizeMetricsGraphs(model)
 
@@ -321,4 +321,3 @@ def visualizeMetricsGraphs(model):
     
     plt.tight_layout()
     plt.show()
-

@@ -1,12 +1,15 @@
-from data_processing import *
+from sklearn.preprocessing import MinMaxScaler, KBinsDiscretizer
 from PlayerStatsProlog import *
 from utils import *
 from semanticWeb import *
 from bayesian_network import *
 from sklearn.preprocessing import MinMaxScaler, KBinsDiscretizer
 from supervised_learning import *
+from unsupervised_learning import *
 
 def main():
+    scaler=MinMaxScaler()
+
     file_path_dataset = getFilePathDataSet("dataset.csv")
     print(file_path_dataset)
     file_path_kb = getFilePathKB()
@@ -14,8 +17,6 @@ def main():
 
     # CARICAMENTO DATASET CSV
     local_df = loadDataset("dataset.csv")
-    # DATASET CLEANING
-    #local_df = preprocess_data(local_df, "data/new_dataset.csv")  
 
     # CREAZIONE KNOWLEDGE BASE
     create_knowledge_base(local_df, file_path_kb)
@@ -64,11 +65,12 @@ def main():
     '''
 
     # ADDESTRAMENTO SUPERVISIONATO
+    '''
     newDataset = loadDataset("new_dataset.csv")
     # rimuovo righe con valori nulli
     newDataset = newDataset.dropna()
     # Calcola il numero di righe da eliminare
-    rows_to_drop = int(len(newDataset) * 0.60)
+    rows_to_drop = int(len(newDataset) * 0.40)
     # Seleziona casualmente le righe da mantenere
     rows_to_keep = newDataset.sample(n=len(newDataset) - rows_to_drop, random_state=40)
     # Crea un nuovo dataset con le sole righe selezionate
@@ -76,9 +78,18 @@ def main():
     differentialColumn = 'Goals'
     #Addestro e valuto i modelli
     model= trainModelKFold(newDataset, differentialColumn)
-    #print(model)
+    '''
+    differentialColumn = "Pos"
     # ADDESTRAMENTO NON SUPERVISIONATO
-    
+    getRatioChart(newDataset, differentialColumn ,title="Suddivisione attuale giocatori per ruolo")
+    #Eseguo il KMeans
+    etichette_cluster, centroidi = calcolaCluster(newDataset)
+    #Creo il nuovo dataset con la colonna 'clusterIndex'
+    differentialColumn = 'clusterIndex'
+    newDataset[differentialColumn] = etichette_cluster
+    # Visualizza il rapporto di aspetto del dataset dopo il clustering
+    getRatioChart(newDataset, differentialColumn,"Suddivisione giocatori per caratteristiche")
+
 
 if __name__ == "__main__":
     main()
