@@ -1,4 +1,3 @@
-from sklearn.preprocessing import MinMaxScaler, KBinsDiscretizer
 from PlayerStatsProlog import *
 from utils import *
 from semanticWeb import *
@@ -8,8 +7,6 @@ from supervised_learning import *
 from unsupervised_learning import *
 
 def main():
-    scaler=MinMaxScaler()
-
     file_path_dataset = getFilePathDataSet("dataset.csv")
     print(file_path_dataset)
     file_path_kb = getFilePathKB()
@@ -65,7 +62,7 @@ def main():
     '''
 
     # ADDESTRAMENTO SUPERVISIONATO
-    '''
+    
     newDataset = loadDataset("new_dataset.csv")
     # rimuovo righe con valori nulli
     newDataset = newDataset.dropna()
@@ -78,7 +75,7 @@ def main():
     differentialColumn = 'Goals'
     #Addestro e valuto i modelli
     model= trainModelKFold(newDataset, differentialColumn)
-    '''
+    
     differentialColumn = "Pos"
     # ADDESTRAMENTO NON SUPERVISIONATO
     getRatioChart(newDataset, differentialColumn ,title="Suddivisione attuale giocatori per ruolo")
