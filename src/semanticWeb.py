@@ -3,11 +3,9 @@ import csv
 
 def retrieve_player_height(player_uri):
     height = 0
-    # Set up the SPARQL endpoint
     sparql = SPARQLWrapper("http://dbpedia.org/sparql")
     sparql.setReturnFormat(JSON)
 
-    # Construct the SPARQL query
     query = f"""
         PREFIX dbo: <http://dbpedia.org/ontology/>
 
@@ -20,7 +18,6 @@ def retrieve_player_height(player_uri):
 
     sparql.setQuery(query)
 
-    # Execute the query and process the results
     results = sparql.query().convert()
     if 'results' in results and 'bindings' in results['results']:
         for result in results['results']['bindings']:
@@ -31,10 +28,9 @@ def retrieve_player_height(player_uri):
     return height
 
 def add_height_from_semantic_web(input_file, output_file):
-    # Open the input CSV file and read the data
     with open(input_file, mode='r', newline='', encoding='latin-1') as csv_file:
         reader = csv.DictReader(csv_file, delimiter=';')
-        fieldnames = reader.fieldnames  # Store the fieldnames before reading the data rows
+        fieldnames = reader.fieldnames
         data = list(reader)
         for row in data:
             player_uri = "http://dbpedia.org/resource/"
@@ -49,20 +45,16 @@ def add_height_from_semantic_web(input_file, output_file):
             else:
                 row['height'] = height
         
-    # Write the updated dataset with the new attribute to a new CSV file
     with open(output_file, mode='w', newline='', encoding='latin-1') as csv_file:
-        print("FINALMENTE")
-        fieldnames += ['height']  # Add the new attribute names to the fieldnames
+        fieldnames += ['height']
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames, delimiter=';')
 
-        # Write the header
         writer.writeheader()
 
-        # Write each row with the new attribute
         for row in data:
             print(row['height'])
             writer.writerow(row)
 
 
-    print("height added")
+    print("altezza aggiunta")
     
